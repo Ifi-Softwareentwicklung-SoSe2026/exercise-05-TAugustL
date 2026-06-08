@@ -143,20 +143,22 @@ skinparam classAttributeIconSize 0
 
 class Gruppe {
     - name: String
-    - teams: List<String>
-    + addTeam(team: String): void
+    - teams: List<Mannschaft>
+    + addTeam(team: Mannschaft): void
+}
+
+class Mannschaft {
+    - name: String
+    + getName(): String
 }
 
 class Spiel {
     - spielId: String
     - datum: Date
     - uhrzeit: Time
-    - heimMannschaft: String
-    - auswaertsMannschaft: String
     - ergebnis: String
-    - wetten: List<Wette>
     + setErgebnis(score: String): void
-    + addWette(wette: Wette): void
+    + getErgebnis(): String
 }
 
 class Benutzer {
@@ -188,8 +190,8 @@ class TurnierManager {
     + processResult(spielId: String, score: String): void
 }
 
-Gruppe "1" *-- "*" String : enthält Mannschaften
-Spiel "*" o-- "2" String : beteiligt Mannschaften
+Gruppe "1" *-- "*" Mannschaft : enthält
+Spiel "*" o-- "2" Mannschaft : beteiligt (Heim/Auswärts)
 Spiel "1" *-- "*" Wette : besitzt Quoten/Wetten
 Wette "*" o-- "1" Benutzer : platziert von
 Wette "*" o-- "1" Spiel : bezieht sich auf

@@ -141,10 +141,15 @@ Kevin ersetzt den folgenden Platzhalter mit einem LiaScript-kompatiblen PlantUML
 @startuml
 skinparam classAttributeIconSize 0
 
+class Mannschaft {
+    - name: String
+    + getName(): String
+}
+
 class Gruppe {
     - name: String
-    - teams: List<String>
-    + addTeam(teamName: String): void
+    - teams: List<Mannschaft>
+    + addMannschaft(m: Mannschaft): void
 }
 
 class Spiel {
@@ -152,10 +157,19 @@ class Spiel {
     - datum: Date
     - uhrzeit: Time
     - ergebnis: String
-    - heimMannschaft: String
-    - auswaertsMannschaft: String
+    - heimMannschaft: Mannschaft
+    - auswaertsMannschaft: Mannschaft
+    - quoten: List<Wettquote>
     + setErgebnis(score: String): void
     + getErgebnis(): String
+    + addQuote(q: Wettquote): void
+}
+
+class Wettquote {
+    - wettTyp: String
+    - quote: double
+    + getWettTyp(): String
+    + getQuote(): double
 }
 
 class Benutzer {
@@ -187,7 +201,9 @@ class TurnierManager {
     + processResult(spielId: String, score: String): void
 }
 
-Spiel "1" *-- "*" Wette : besitzt Quoten/Wetten
+Gruppe "1" *-- "*" Mannschaft : enthält
+Spiel "*" o-- "2" Mannschaft : beteiligt
+Spiel "1" *-- "*" Wettquote : definiert
 Wette "*" o-- "1" Benutzer : platziert von
 Wette "*" o-- "1" Spiel : bezieht sich auf
 TurnierManager "1" --> "*" Gruppe : verwaltet

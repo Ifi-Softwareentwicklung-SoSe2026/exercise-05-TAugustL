@@ -148,8 +148,7 @@ class Mannschaft {
 
 class Gruppe {
     - name: String
-    - teams: List<Mannschaft>
-    + addMannschaft(m: Mannschaft): void
+    + getName(): String
 }
 
 class Spiel {
@@ -157,12 +156,8 @@ class Spiel {
     - datum: Date
     - uhrzeit: Time
     - ergebnis: String
-    - heimMannschaft: Mannschaft
-    - auswaertsMannschaft: Mannschaft
-    - quoten: List<Wettquote>
+    + getSpielId(): String
     + setErgebnis(score: String): void
-    + getErgebnis(): String
-    + addQuote(q: Wettquote): void
 }
 
 class Wettquote {
@@ -170,11 +165,14 @@ class Wettquote {
     - quote: double
     + getWettTyp(): String
     + getQuote(): double
+    + setQuote(value: double): void
 }
 
 class Benutzer {
     - name: String
     - guthaben: double
+    + getName(): String
+    + getGuthaben(): double
     + updateGuthaben(amount: double): void
 }
 
@@ -202,8 +200,9 @@ class TurnierManager {
 }
 
 Gruppe "1" *-- "*" Mannschaft : enthält
-Spiel "*" o-- "2" Mannschaft : beteiligt
-Spiel "1" *-- "*" Wettquote : definiert
+Spiel "*" o-- "1" Mannschaft : heimMannschaft
+Spiel "*" o-- "1" Mannschaft : auswärtsMannschaft
+Spiel "1" *-- "*" Wettquote : bietet
 Wette "*" o-- "1" Benutzer : platziert von
 Wette "*" o-- "1" Spiel : bezieht sich auf
 TurnierManager "1" --> "*" Gruppe : verwaltet

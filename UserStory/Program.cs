@@ -55,6 +55,7 @@ class TurnierManager {
 
     public void saveToJson(String filePath) {
         Console.WriteLine($"saveToJson: {filePath}");
+
     }
 
     public void loadFromJson(String filePath) {
@@ -95,9 +96,11 @@ class Program {
             switch (arg) {
                 case "new":
                     Console.WriteLine("Initialisiert die Turniertabelle (statisch, da das Turnier vorgegeben ist).");
+                    New();
                     break;
                 case "print":
                     Console.WriteLine("Gibt alle Spiele der Tabelle mit ihren IDs aus.");
+                    Print();
                     break;
                 case "set":
                     Console.WriteLine("<spielid> <Wetttyp> <Wettquote>: Setzt eine Wettquote für ein Spiel und einen Wett-Typ.");
@@ -113,5 +116,13 @@ class Program {
                     break;
             }
         }
+    }
+
+    public static void Print() {
+        Console.WriteLine("Hello, I am the printer, beep-boop");
+    }
+
+    public static void New() {
+        Console.WriteLine("Newnewnewnwenewnwenwenwnewnenwennwenwenwnewnenne");
     }
 }

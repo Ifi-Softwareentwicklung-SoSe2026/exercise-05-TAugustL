@@ -92,11 +92,13 @@ class TurnierManager {
 
 class Program {
     public static void Main(string[] args) {
+        TurnierManager turnier;
+
         foreach (string arg in args) {
             switch (arg) {
                 case "new":
                     Console.WriteLine("Initialisiert die Turniertabelle (statisch, da das Turnier vorgegeben ist).");
-                    New();
+                    turnier = New();
                     break;
                 case "print":
                     Console.WriteLine("Gibt alle Spiele der Tabelle mit ihren IDs aus.");
@@ -118,11 +120,13 @@ class Program {
         }
     }
 
-    public static void Print() {
+    public static void Print(TurnierManager turnier) {
         Console.WriteLine("Hello, I am the printer, beep-boop");
+        Console.WriteLine($"{turnier.ToString()}, oops seems like Kevin-AI made all the fields private :(");
     }
 
-    public static void New() {
+    public static TurnierManager New() {
         Console.WriteLine("Newnewnewnwenewnwenwenwnewnenwennwenwenwnewnenne");
+        return new();
     }
 }

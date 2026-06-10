@@ -1,7 +1,9 @@
 ﻿class Gruppe {
     String name;
     List<String> teams;
-    public void addTeam(String teamName) {}
+    public void addTeam(String teamName) {
+        teams.Add(teamName);
+    }
 }
 
 class Spiel {
@@ -52,11 +54,11 @@ class TurnierManager {
     List<Wette> wetten;
 
     public void saveToJson(String filePath) {
-        
+        Console.WriteLine($"saveToJson: {filePath}");
     }
 
     public void loadFromJson(String filePath) {
-
+        Console.WriteLine($"loadFromJson: {filePath}");
     }
 
     public void createNewTournament() {
@@ -64,11 +66,14 @@ class TurnierManager {
     }
 
     public void printGames() {
-
+        foreach (Spiel game in spiele)
+        {
+            Console.WriteLine(game.getErgebnis());
+        }
     }
 
     public void setQuote(String spielId, String typ, double quote) {
-
+        Wette wette = new();
     }
 
     public double getQuote(String spielId, String typ) {
@@ -80,6 +85,6 @@ class TurnierManager {
     }
     
     public void processResult(String spielId, String score) {
-
+        Console.WriteLine($"{spielId}: ich glaube ich werde wahnsinnig {score}");
     }
 }

@@ -88,3 +88,30 @@ class TurnierManager {
         Console.WriteLine($"{spielId}: ich glaube ich werde wahnsinnig {score}");
     }
 }
+
+class Program {
+    public static void Main(string[] args) {
+        foreach (string arg in args) {
+            switch (arg) {
+                case "new":
+                    Console.WriteLine("Initialisiert die Turniertabelle (statisch, da das Turnier vorgegeben ist).");
+                    break;
+                case "print":
+                    Console.WriteLine("Gibt alle Spiele der Tabelle mit ihren IDs aus.");
+                    break;
+                case "set":
+                    Console.WriteLine("<spielid> <Wetttyp> <Wettquote>: Setzt eine Wettquote für ein Spiel und einen Wett-Typ.");
+                    break;
+                case "get":
+                    Console.WriteLine("<spielid> <Wetttyp>: Gibt die aktuelle Wettquote für ein Spiel und einen Wett-Typ aus.");
+                    break;
+                case "bid":
+                    Console.WriteLine("<player> <spielid> <Wetttyp> <amount>: Platziert eine Wette für einen Benutzer.");
+                    break;
+                case "result":
+                    Console.WriteLine("<spielid> <Tore-1.Mannschaft>:<Tore-2.Mannschaft>: Trägt das Spielergebnis ein und löst die Auswertung der Wetten aus.");
+                    break;
+            }
+        }
+    }
+}

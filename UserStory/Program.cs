@@ -131,6 +131,11 @@ class Program {
         String wetttyp;
         double wettquote;
 
+        if (args.Length <= 1) {
+            Set(turnier, "test-spiel", "Siegwette", 0.43);
+            Get(turnier, "test-spiel", "Siegwette");
+        }
+
         for (int i = 0; i < args.Length; i++) {
             switch (args[i].ToLower()) {
                 case "new":
@@ -143,15 +148,12 @@ class Program {
                     spielId = args[i + 1];
                     wetttyp = args[i + 2];
                     wettquote = double.Parse(args[i + 3]);
-                    turnier.setQuote(spielId, wetttyp, wettquote);
-                    turnier.saveToJson("Turnier.json");
+                    Set(turnier, spielId, wetttyp, wettquote);
                     break;
                 case "get":
-                    turnier.loadFromJson("Turnier.json");
                     spielId = args[i + 1];
                     wetttyp = args[i + 2];
-                    wettquote = turnier.getQuote(spielId, wetttyp);
-                    Console.WriteLine($"Quote: {wettquote}");
+                    Get(turnier, spielId, wetttyp);
                     break;
                 case "bid":
                     Console.WriteLine("<player> <spielid> <Wetttyp> <amount>: Platziert eine Wette für einen Benutzer.");
@@ -170,5 +172,16 @@ class Program {
     public static TurnierManager New() {
         Console.WriteLine("New");
         return new();
+    }
+
+    public static void Set(TurnierManager turnier, String spielId, String wetttyp, double wettquote) {
+        turnier.setQuote(spielId, wetttyp, wettquote);
+        turnier.saveToJson("./Turnier.json");
+    }
+
+    public static void Get(TurnierManager turnier, String spielId, String wetttyp) {
+        turnier.loadFromJson("./Turnier.json");
+        double wettquote = turnier.getQuote(spielId, wetttyp);
+        Console.WriteLine($"Quote: {wettquote}");
     }
 }

@@ -144,8 +144,10 @@ class Program {
                     wetttyp = args[i + 2];
                     wettquote = double.Parse(args[i + 3]);
                     turnier.setQuote(spielId, wetttyp, wettquote);
+                    turnier.saveToJson("Turnier.json");
                     break;
                 case "get":
+                    turnier.loadFromJson("Turnier.json");
                     spielId = args[i + 1];
                     wetttyp = args[i + 2];
                     wettquote = turnier.getQuote(spielId, wetttyp);

@@ -154,8 +154,7 @@ class Program {
     }
 
     public static void Print(TurnierManager turnier) {
-        Console.WriteLine("Hello, I am the printer, beep-boop");
-        Console.WriteLine($"{turnier.ToString()}, oops seems like Kevin-AI made all the fields private :(");
+        turnier.printGames();
     }
 
     public static TurnierManager New() {

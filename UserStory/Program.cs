@@ -66,7 +66,8 @@ class TurnierManager {
     }
 
     public void loadFromJson(String filePath) {
-        TurnierManager? tm = JsonSerializer.Deserialize<TurnierManager>(filePath);
+        String json = File.ReadAllText(filePath);
+        TurnierManager? tm = JsonSerializer.Deserialize<TurnierManager>(json);
         if (tm == null) {
             Console.WriteLine("Datei nicht gefunden!");
             return;
@@ -97,6 +98,13 @@ class TurnierManager {
                 return;
             }
         }
+        Wette neu_wette = new()
+        {
+            spielId = spielId,
+            wettTyp = typ,
+            quote = quote
+        };
+        wetten.Add(neu_wette);
     }
 
     public double getQuote(String spielId, String typ) {
@@ -126,22 +134,34 @@ class TurnierManager {
 
 class Program {
     public static void Main(string[] args) {
-        TurnierManager turnier = new();
+        TurnierManager turnier = New();
+        String spielId;
+        String wetttyp;
+        double wettquote;
 
-        foreach (string arg in args) {
-            switch (arg) {
+        if (args.Length <= 1) {
+            Set(turnier, "test-spiel", "Siegwette", 0.43);
+            Get(turnier, "test-spiel", "Siegwette");
+        }
+
+        for (int i = 0; i < args.Length; i++) {
+            switch (args[i].ToLower()) {
                 case "new":
-                    Console.WriteLine("Initialisiert die Turniertabelle (statisch, da das Turnier vorgegeben ist).");
+                    turnier = New();
                     break;
                 case "print":
-                    Console.WriteLine("Gibt alle Spiele der Tabelle mit ihren IDs aus.");
                     Print(turnier);
                     break;
                 case "set":
-                    Console.WriteLine("<spielid> <Wetttyp> <Wettquote>: Setzt eine Wettquote für ein Spiel und einen Wett-Typ.");
+                    spielId = args[i + 1];
+                    wetttyp = args[i + 2];
+                    wettquote = double.Parse(args[i + 3]);
+                    Set(turnier, spielId, wetttyp, wettquote);
                     break;
                 case "get":
-                    Console.WriteLine("<spielid> <Wetttyp>: Gibt die aktuelle Wettquote für ein Spiel und einen Wett-Typ aus.");
+                    spielId = args[i + 1];
+                    wetttyp = args[i + 2];
+                    Get(turnier, spielId, wetttyp);
                     break;
                 case "bid":
                     Console.WriteLine("<player> <spielid> <Wetttyp> <amount>: Platziert eine Wette für einen Benutzer.");
@@ -158,7 +178,19 @@ class Program {
     }
 
     public static TurnierManager New() {
-        Console.WriteLine("New");
-        return new();
+        TurnierManager tm = new();
+        tm.createNewTournament();
+        return tm;
+    }
+
+    public static void Set(TurnierManager turnier, String spielId, String wetttyp, double wettquote) {
+        turnier.setQuote(spielId, wetttyp, wettquote);
+        turnier.saveToJson("Turnier.json");
+    }
+
+    public static void Get(TurnierManager turnier, String spielId, String wetttyp) {
+        turnier.loadFromJson("Turnier.json");
+        double wettquote = turnier.getQuote(spielId, wetttyp);
+        Console.WriteLine($"Quote: {wettquote}");
     }
 }

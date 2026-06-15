@@ -66,7 +66,8 @@ class TurnierManager {
     }
 
     public void loadFromJson(String filePath) {
-        TurnierManager? tm = JsonSerializer.Deserialize<TurnierManager>(filePath);
+        String json = File.ReadAllText(filePath);
+        TurnierManager? tm = JsonSerializer.Deserialize<TurnierManager>(json);
         if (tm == null) {
             Console.WriteLine("Datei nicht gefunden!");
             return;
@@ -97,6 +98,13 @@ class TurnierManager {
                 return;
             }
         }
+        Wette neu_wette = new()
+        {
+            spielId = spielId,
+            wettTyp = typ,
+            quote = quote
+        };
+        wetten.Add(neu_wette);
     }
 
     public double getQuote(String spielId, String typ) {
@@ -126,7 +134,7 @@ class TurnierManager {
 
 class Program {
     public static void Main(string[] args) {
-        TurnierManager turnier = new();
+        TurnierManager turnier = New();
         String spielId;
         String wetttyp;
         double wettquote;
@@ -170,17 +178,18 @@ class Program {
     }
 
     public static TurnierManager New() {
-        Console.WriteLine("New");
-        return new();
+        TurnierManager tm = new();
+        tm.createNewTournament();
+        return tm;
     }
 
     public static void Set(TurnierManager turnier, String spielId, String wetttyp, double wettquote) {
         turnier.setQuote(spielId, wetttyp, wettquote);
-        turnier.saveToJson("./Turnier.json");
+        turnier.saveToJson("Turnier.json");
     }
 
     public static void Get(TurnierManager turnier, String spielId, String wetttyp) {
-        turnier.loadFromJson("./Turnier.json");
+        turnier.loadFromJson("Turnier.json");
         double wettquote = turnier.getQuote(spielId, wetttyp);
         Console.WriteLine($"Quote: {wettquote}");
     }

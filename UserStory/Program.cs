@@ -127,21 +127,29 @@ class TurnierManager {
 class Program {
     public static void Main(string[] args) {
         TurnierManager turnier = new();
+        String spielId;
+        String wetttyp;
+        double wettquote;
 
-        foreach (string arg in args) {
-            switch (arg) {
+        for (int i = 0; i < args.Length; i++) {
+            switch (args[i].ToLower()) {
                 case "new":
-                    Console.WriteLine("Initialisiert die Turniertabelle (statisch, da das Turnier vorgegeben ist).");
+                    turnier = New();
                     break;
                 case "print":
-                    Console.WriteLine("Gibt alle Spiele der Tabelle mit ihren IDs aus.");
                     Print(turnier);
                     break;
                 case "set":
-                    Console.WriteLine("<spielid> <Wetttyp> <Wettquote>: Setzt eine Wettquote für ein Spiel und einen Wett-Typ.");
+                    spielId = args[i + 1];
+                    wetttyp = args[i + 2];
+                    wettquote = double.Parse(args[i + 3]);
+                    turnier.setQuote(spielId, wetttyp, wettquote);
                     break;
                 case "get":
-                    Console.WriteLine("<spielid> <Wetttyp>: Gibt die aktuelle Wettquote für ein Spiel und einen Wett-Typ aus.");
+                    spielId = args[i + 1];
+                    wetttyp = args[i + 2];
+                    wettquote = turnier.getQuote(spielId, wetttyp);
+                    Console.WriteLine($"Quote: {wettquote}");
                     break;
                 case "bid":
                     Console.WriteLine("<player> <spielid> <Wetttyp> <amount>: Platziert eine Wette für einen Benutzer.");

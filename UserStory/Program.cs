@@ -1,18 +1,23 @@
-﻿class Gruppe {
-    String name;
-    List<String> teams;
+﻿using System.Reflection.Metadata;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
+
+class Gruppe {
+    public String name {get; set;}
+    public List<String> teams {get; set;}
     public void addTeam(String teamName) {
         teams.Add(teamName);
     }
 }
 
 class Spiel {
-    String spielId;
-    DateTime datum;
-    DateTime uhrzeit;
-    String ergebnis;
-    String heimMannschaft;
-    String auswaertsMannschaft;
+    public String spielId {get; set;}
+    public DateTime datum {get; set;}
+    public DateTime uhrzeit {get; set;}
+    public String ergebnis {get; set;}
+    public String heimMannschaft {get; set;}
+    public String auswaertsMannschaft {get; set;}
     
     public void setErgebnis(String score)
     {
@@ -26,8 +31,8 @@ class Spiel {
 }
 
 class Benutzer {
-    String name;
-    double guthaben;
+    public String name {get; set;}
+    public double guthaben {get; set;}
     
     public void updateGuthaben(double amount)
     {
@@ -36,53 +41,82 @@ class Benutzer {
 }
 
 class Wette {
-    String wettTyp;
-    double quote;
-    double einsatz;
-    bool istAusgewertet;
+    public String spielId {get; set;}
+    public String wettTyp {get; set;}
+    public double quote {get; set;}
+    public double einsatz {get; set;}
+    public bool istAusgewertet {get; set;}
     
     public double auswerten(String ergebnis)
     {
+        istAusgewertet = true;
         return 0.0 * ergebnis.Length;
     }
 }
 
 class TurnierManager {
-    List<Gruppe> gruppen;
-    List<Spiel> spiele;
-    List<Benutzer> benutzer;
-    List<Wette> wetten;
+    public List<Gruppe> gruppen {get; set;}
+    public List<Spiel> spiele {get; set;}
+    public List<Benutzer> benutzer {get; set;}
+    public List<Wette> wetten {get; set;}
 
     public void saveToJson(String filePath) {
-        Console.WriteLine($"saveToJson: {filePath}");
-
+        String json = JsonSerializer.Serialize(this);
+        File.WriteAllText(filePath, json);
     }
 
     public void loadFromJson(String filePath) {
-        Console.WriteLine($"loadFromJson: {filePath}");
+        TurnierManager? tm = JsonSerializer.Deserialize<TurnierManager>(filePath);
+        if (tm == null) {
+            Console.WriteLine("Datei nicht gefunden!");
+            return;
+        }
+        gruppen = tm.gruppen;
+        spiele = tm.spiele;
+        benutzer = tm.benutzer;
+        wetten = tm.wetten;
     }
 
     public void createNewTournament() {
-
+        gruppen = [];
+        spiele = [];
+        benutzer = [];
+        wetten = [];
     }
 
     public void printGames() {
-        foreach (Spiel game in spiele)
-        {
-            Console.WriteLine(game.getErgebnis());
+        foreach (Spiel spiel in spiele) {
+            Console.WriteLine(spiel.getErgebnis());
         }
     }
 
     public void setQuote(String spielId, String typ, double quote) {
-        Wette wette = new();
+        foreach (Wette wette in wetten) {
+            if (wette.spielId == spielId && wette.wettTyp == typ) {
+                wette.quote = quote;
+                return;
+            }
+        }
     }
 
     public double getQuote(String spielId, String typ) {
-        return 0.0;
+        foreach (Wette wette in wetten) {
+            if (wette.spielId == spielId && wette.wettTyp == typ) {
+                return wette.quote;
+            }
+        }
+        return double.NaN;
     }
 
     public void placeBid(String playerName, String spielId, String typ, double amount) {
-        Wette wette = new();
+        Wette wette = new()
+        {
+            spielId = spielId,
+            einsatz = amount,
+            wettTyp = typ,
+        };
+        wetten.Add(wette);
+        Console.WriteLine($"Neue Wette auf {playerName}");
     }
     
     public void processResult(String spielId, String score) {
@@ -92,17 +126,16 @@ class TurnierManager {
 
 class Program {
     public static void Main(string[] args) {
-        TurnierManager turnier;
+        TurnierManager turnier = new();
 
         foreach (string arg in args) {
             switch (arg) {
                 case "new":
                     Console.WriteLine("Initialisiert die Turniertabelle (statisch, da das Turnier vorgegeben ist).");
-                    turnier = New();
                     break;
                 case "print":
                     Console.WriteLine("Gibt alle Spiele der Tabelle mit ihren IDs aus.");
-                    Print();
+                    Print(turnier);
                     break;
                 case "set":
                     Console.WriteLine("<spielid> <Wetttyp> <Wettquote>: Setzt eine Wettquote für ein Spiel und einen Wett-Typ.");
@@ -126,7 +159,7 @@ class Program {
     }
 
     public static TurnierManager New() {
-        Console.WriteLine("Newnewnewnwenewnwenwenwnewnenwennwenwenwnewnenne");
+        Console.WriteLine("New");
         return new();
     }
 }

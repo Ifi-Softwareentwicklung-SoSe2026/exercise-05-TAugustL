@@ -152,7 +152,7 @@ class TurnierManager {
                 if (bid.wettTyp == ergebnis) {
                     foreach (Benutzer user in benutzer) {
                         if (user.name == bid.benutzer) {
-                            user.updateGuthaben(bid.einsatz);
+                            user.updateGuthaben(bid.einsatz / bid.quote);
                         }
                     }
                 }

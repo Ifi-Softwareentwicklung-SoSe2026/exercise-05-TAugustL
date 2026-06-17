@@ -33,7 +33,7 @@ class Benutzer {
     
     public void updateGuthaben(double amount)
     {
-        guthaben = amount;
+        guthaben += amount;
     }
 }
 
@@ -47,11 +47,11 @@ class Wette {
     
     public double auswerten(String ergebnis)
     {
-        if (!istAusgewertet && wettTyp == ergebnis) {
+        if (!istAusgewertet && wettTyp != ergebnis) {
             return 0.0;
         }
         istAusgewertet = true;
-        return einsatz / quote;
+        return einsatz * quote;
     }
 }
 

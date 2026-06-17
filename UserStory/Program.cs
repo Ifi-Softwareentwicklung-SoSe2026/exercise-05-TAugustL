@@ -129,7 +129,26 @@ class TurnierManager {
     }
     
     public void processResult(String spielId, String score) {
-        Console.WriteLine($"{spielId}: ich glaube ich werde wahnsinnig {score}");
+        int tore1 = 0, tore2 = 0;
+        string[] parts = score.Split(':');
+        tore1 = int.Parse(parts[0]);
+        tore2 = int.Parse(parts[1]);
+        string ergebnis = "Unentschiedenwette";
+        if (tore1 > tore2) {
+            ergebnis = "Siegwette";
+        } else if (tore1 < tore2) {
+            ergebnis = "Niederlagenwette";
+        }
+
+        foreach (Wette bid in wetten) {
+            if (bid.spielId == spielId) {
+                if (bid.wettTyp != ergebnis) {
+                    foreach (Benutzer user in benutzer) {
+                        user.updateGuthaben(bid.einsatz);
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -173,7 +192,6 @@ class Program {
                     Bid(turnier, player, spielId, wetttyp, amount);
                     break;
                 case "result":
-                    Console.WriteLine("<spielid> <Tore-1.Mannschaft>:<Tore-2.Mannschaft>: Trägt das Spielergebnis ein und löst die Auswertung der Wetten aus.");
                     spielId = args[i + 1];
                     tore1 = int.Parse(args[i + 2]);
                     tore2 = int.Parse(args[i + 3]);
@@ -206,12 +224,15 @@ class Program {
 
     public static void Bid(TurnierManager turnier, String player, String spielid, String wetttyp, double amount) {
         turnier.placeBid(player, spielid, wetttyp, amount);
+        turnier.saveToJson("Turnier.json");
     }
 
     public static void Result(TurnierManager turnier, String spielId, int tore1, int tore2) {
         foreach (Spiel game in turnier.spiele) {
             if (game.spielId == spielId) {
-                game.setErgebnis($"{tore1}:{tore2}");
+                var score = $"{tore1}:{tore2}";
+                game.setErgebnis(score);
+                turnier.processResult(spielId, score);
                 break;
             }
         }

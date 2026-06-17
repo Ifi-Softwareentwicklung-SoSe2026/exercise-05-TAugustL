@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 
+
 class Gruppe {
     public String name {get; set;}
     public List<String> teams {get; set;}
@@ -135,13 +136,14 @@ class TurnierManager {
 class Program {
     public static void Main(string[] args) {
         TurnierManager turnier = New();
-        String spielId;
-        String wetttyp;
-        double wettquote;
+        String player, spielId, wetttyp;
+        double wettquote, amount;
+        int tore1, tore2;
 
         if (args.Length <= 1) {
-            Set(turnier, "test-spiel", "Siegwette", 0.43);
-            Get(turnier, "test-spiel", "Siegwette");
+            Bid(turnier, "test-spieler", "test-spiel", "Siegwette", 500.0);
+            Result(turnier, "test-spiel", 1, 0);
+            turnier.printGames();
         }
 
         for (int i = 0; i < args.Length; i++) {
@@ -164,10 +166,18 @@ class Program {
                     Get(turnier, spielId, wetttyp);
                     break;
                 case "bid":
-                    Console.WriteLine("<player> <spielid> <Wetttyp> <amount>: Platziert eine Wette für einen Benutzer.");
+                    player = args[i + 1];
+                    spielId = args[i + 2];
+                    wetttyp = args[i + 3];
+                    amount = double.Parse(args[i + 4]);
+                    Bid(turnier, player, spielId, wetttyp, amount);
                     break;
                 case "result":
                     Console.WriteLine("<spielid> <Tore-1.Mannschaft>:<Tore-2.Mannschaft>: Trägt das Spielergebnis ein und löst die Auswertung der Wetten aus.");
+                    spielId = args[i + 1];
+                    tore1 = int.Parse(args[i + 2]);
+                    tore2 = int.Parse(args[i + 3]);
+                    Result(turnier, spielId, tore1, tore2);
                     break;
             }
         }
@@ -192,5 +202,18 @@ class Program {
         turnier.loadFromJson("Turnier.json");
         double wettquote = turnier.getQuote(spielId, wetttyp);
         Console.WriteLine($"Quote: {wettquote}");
+    }
+
+    public static void Bid(TurnierManager turnier, String player, String spielid, String wetttyp, double amount) {
+        turnier.placeBid(player, spielid, wetttyp, amount);
+    }
+
+    public static void Result(TurnierManager turnier, String spielId, int tore1, int tore2) {
+        foreach (Spiel game in turnier.spiele) {
+            if (game.spielId == spielId) {
+                game.setErgebnis($"{tore1}:{tore2}");
+                break;
+            }
+        }
     }
 }

@@ -1,8 +1,4 @@
-﻿using System.Reflection.Metadata;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Text.Json.Serialization.Metadata;
-
+﻿using System.Text.Json;
 
 class Gruppe {
     public String name {get; set;}
@@ -173,7 +169,9 @@ class Program {
         int tore1, tore2;
 
         if (args.Length <= 1) {
-            turnier.loadFromJson("Turnier.json");
+            if (File.Exists("Turnier.json")) {
+                turnier.loadFromJson("Turnier.json");
+            }
             Bid(turnier, "test-spieler", "test-spiel", "Siegwette", 500.0);
             Result(turnier, "test-spiel", 1, 0);
             turnier.printGames();

@@ -139,10 +139,12 @@ class TurnierManager {
     }
     
     public void processResult(String spielId, String score) {
-        int tore1 = 0, tore2 = 0;
+        int? tore1 = 0, tore2 = 0;
         string[] parts = score.Split(':');
         tore1 = int.Parse(parts[0]);
         tore2 = int.Parse(parts[1]);
+        tore1 ??= 0;
+        tore2 ??= 0;
         string ergebnis = "Unentschiedenwette";
         if (tore1 > tore2) {
             ergebnis = "Siegwette";

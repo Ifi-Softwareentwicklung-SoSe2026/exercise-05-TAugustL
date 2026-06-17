@@ -271,5 +271,6 @@ class Program {
                 break;
             }
         }
+        turnier.saveToJson("Turnier.json");
     }
 }

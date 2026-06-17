@@ -47,8 +47,9 @@ class Wette {
     
     public double auswerten(String ergebnis)
     {
+        double sign = 1.0;
         istAusgewertet = true;
-        return 0.0 * ergebnis.Length;
+        return sign * einsatz / quote;
     }
 }
 
@@ -151,8 +152,8 @@ class TurnierManager {
             if (bid.spielId == spielId) {
                 if (bid.wettTyp == ergebnis) {
                     foreach (Benutzer user in benutzer) {
-                        if (user.name == bid.benutzer) {
-                            user.updateGuthaben(bid.einsatz / bid.quote);
+                        if (user.name == bid.benutzer && !bid.istAusgewertet) {
+                            user.updateGuthaben(bid.auswerten(spielId));
                         }
                     }
                 }

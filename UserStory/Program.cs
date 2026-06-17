@@ -44,6 +44,7 @@ class Benutzer {
 class Wette {
     public String spielId {get; set;}
     public String wettTyp {get; set;}
+    public String benutzer {get; set;}
     public double quote {get; set;}
     public double einsatz {get; set;}
     public bool istAusgewertet {get; set;}
@@ -123,9 +124,19 @@ class TurnierManager {
             spielId = spielId,
             einsatz = amount,
             wettTyp = typ,
+            benutzer = playerName,
         };
         wetten.Add(wette);
-        Console.WriteLine($"Neue Wette auf {playerName}");
+        bool userExists = false;
+        foreach (Benutzer nutzer in benutzer) {
+            if (nutzer.name == playerName) {
+                userExists = true;
+                break;
+            }
+        }
+        if (!userExists) {
+            benutzer.Add(new() {name = playerName, guthaben = 0,});
+        }
     }
     
     public void processResult(String spielId, String score) {
@@ -142,9 +153,11 @@ class TurnierManager {
 
         foreach (Wette bid in wetten) {
             if (bid.spielId == spielId) {
-                if (bid.wettTyp != ergebnis) {
+                if (bid.wettTyp == ergebnis) {
                     foreach (Benutzer user in benutzer) {
-                        user.updateGuthaben(bid.einsatz);
+                        if (user.name == bid.benutzer) {
+                            user.updateGuthaben(bid.einsatz);
+                        }
                     }
                 }
             }
@@ -160,6 +173,7 @@ class Program {
         int tore1, tore2;
 
         if (args.Length <= 1) {
+            turnier.loadFromJson("Turnier.json");
             Bid(turnier, "test-spieler", "test-spiel", "Siegwette", 500.0);
             Result(turnier, "test-spiel", 1, 0);
             turnier.printGames();

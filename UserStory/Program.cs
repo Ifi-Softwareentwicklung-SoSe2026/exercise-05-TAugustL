@@ -247,6 +247,17 @@ class Program {
     }
 
     public static void Result(TurnierManager turnier, String spielId, int tore1, int tore2) {
+        bool gameExists = false;
+        foreach (Spiel game in turnier.spiele) {
+            if (game.spielId == spielId) {
+                gameExists = true;
+                break;
+            }
+        }
+        if (!gameExists) {
+            turnier.spiele.Add(new() {spielId = spielId, ergebnis = "0:0"});
+        }
+
         foreach (Spiel game in turnier.spiele) {
             if (game.spielId == spielId) {
                 var score = $"{tore1}:{tore2}";

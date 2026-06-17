@@ -163,6 +163,13 @@ class Program {
             Bid(turnier, "test-spieler", "test-spiel", "Siegwette", 500.0);
             Result(turnier, "test-spiel", 1, 0);
             turnier.printGames();
+            foreach (Wette bid in turnier.wetten) {
+                string done = bid.istAusgewertet ? "X" : " ";
+                Console.WriteLine($"{bid.spielId} ({bid.wettTyp}): {bid.einsatz}€, {bid.quote * 100.0}% [{done}]");
+            }
+            foreach (Benutzer user in turnier.benutzer) {
+                Console.WriteLine($"{user.name}: {user.guthaben}€");
+            }
         }
 
         for (int i = 0; i < args.Length; i++) {

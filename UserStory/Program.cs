@@ -1,7 +1,4 @@
-﻿using System.Reflection.Metadata;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Text.Json.Serialization.Metadata;
+﻿using System.Text.Json;
 
 class Gruppe {
     public String name {get; set;}
@@ -36,21 +33,25 @@ class Benutzer {
     
     public void updateGuthaben(double amount)
     {
-        guthaben = amount;
+        guthaben += amount;
     }
 }
 
 class Wette {
     public String spielId {get; set;}
     public String wettTyp {get; set;}
+    public String benutzer {get; set;}
     public double quote {get; set;}
     public double einsatz {get; set;}
     public bool istAusgewertet {get; set;}
     
     public double auswerten(String ergebnis)
     {
+        if (!istAusgewertet && wettTyp != ergebnis) {
+            return 0.0;
+        }
         istAusgewertet = true;
-        return 0.0 * ergebnis.Length;
+        return einsatz * quote;
     }
 }
 
@@ -122,26 +123,70 @@ class TurnierManager {
             spielId = spielId,
             einsatz = amount,
             wettTyp = typ,
+            benutzer = playerName,
         };
         wetten.Add(wette);
-        Console.WriteLine($"Neue Wette auf {playerName}");
+        bool userExists = false;
+        foreach (Benutzer nutzer in benutzer) {
+            if (nutzer.name == playerName) {
+                userExists = true;
+                break;
+            }
+        }
+        if (!userExists) {
+            benutzer.Add(new() {name = playerName, guthaben = 0,});
+        }
     }
     
     public void processResult(String spielId, String score) {
-        Console.WriteLine($"{spielId}: ich glaube ich werde wahnsinnig {score}");
+        int? tore1 = 0, tore2 = 0;
+        string[] parts = score.Split(':');
+        tore1 = int.Parse(parts[0]);
+        tore2 = int.Parse(parts[1]);
+        tore1 ??= 0;
+        tore2 ??= 0;
+        string ergebnis = "Unentschiedenwette";
+        if (tore1 > tore2) {
+            ergebnis = "Siegwette";
+        } else if (tore1 < tore2) {
+            ergebnis = "Niederlagenwette";
+        }
+
+        foreach (Wette bid in wetten) {
+            if (bid.spielId == spielId) {
+                if (bid.wettTyp == ergebnis) {
+                    foreach (Benutzer user in benutzer) {
+                        if (user.name == bid.benutzer && !bid.istAusgewertet) {
+                            user.updateGuthaben(bid.auswerten(ergebnis));
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
 class Program {
     public static void Main(string[] args) {
         TurnierManager turnier = New();
-        String spielId;
-        String wetttyp;
-        double wettquote;
+        String player, spielId, wetttyp;
+        double wettquote, amount;
+        int tore1, tore2;
 
         if (args.Length <= 1) {
-            Set(turnier, "test-spiel", "Siegwette", 0.43);
-            Get(turnier, "test-spiel", "Siegwette");
+            if (File.Exists("Turnier.json")) {
+                turnier.loadFromJson("Turnier.json");
+            }
+            Bid(turnier, "test-spieler", "test-spiel", "Siegwette", 500.0);
+            Result(turnier, "test-spiel", 1, 0);
+            turnier.printGames();
+            foreach (Wette bid in turnier.wetten) {
+                string done = bid.istAusgewertet ? "X" : " ";
+                Console.WriteLine($"{bid.spielId} ({bid.wettTyp}): {bid.einsatz}€, {bid.quote * 100.0}% [{done}]");
+            }
+            foreach (Benutzer user in turnier.benutzer) {
+                Console.WriteLine($"{user.name}: {user.guthaben}€");
+            }
         }
 
         for (int i = 0; i < args.Length; i++) {
@@ -164,10 +209,17 @@ class Program {
                     Get(turnier, spielId, wetttyp);
                     break;
                 case "bid":
-                    Console.WriteLine("<player> <spielid> <Wetttyp> <amount>: Platziert eine Wette für einen Benutzer.");
+                    player = args[i + 1];
+                    spielId = args[i + 2];
+                    wetttyp = args[i + 3];
+                    amount = double.Parse(args[i + 4]);
+                    Bid(turnier, player, spielId, wetttyp, amount);
                     break;
                 case "result":
-                    Console.WriteLine("<spielid> <Tore-1.Mannschaft>:<Tore-2.Mannschaft>: Trägt das Spielergebnis ein und löst die Auswertung der Wetten aus.");
+                    spielId = args[i + 1];
+                    tore1 = int.Parse(args[i + 2]);
+                    tore2 = int.Parse(args[i + 3]);
+                    Result(turnier, spielId, tore1, tore2);
                     break;
             }
         }
@@ -192,5 +244,33 @@ class Program {
         turnier.loadFromJson("Turnier.json");
         double wettquote = turnier.getQuote(spielId, wetttyp);
         Console.WriteLine($"Quote: {wettquote}");
+    }
+
+    public static void Bid(TurnierManager turnier, String player, String spielid, String wetttyp, double amount) {
+        turnier.placeBid(player, spielid, wetttyp, amount);
+        turnier.saveToJson("Turnier.json");
+    }
+
+    public static void Result(TurnierManager turnier, String spielId, int tore1, int tore2) {
+        bool gameExists = false;
+        foreach (Spiel game in turnier.spiele) {
+            if (game.spielId == spielId) {
+                gameExists = true;
+                break;
+            }
+        }
+        if (!gameExists) {
+            turnier.spiele.Add(new() {spielId = spielId, ergebnis = "0:0"});
+        }
+
+        foreach (Spiel game in turnier.spiele) {
+            if (game.spielId == spielId) {
+                var score = $"{tore1}:{tore2}";
+                game.setErgebnis(score);
+                turnier.processResult(spielId, score);
+                break;
+            }
+        }
+        turnier.saveToJson("Turnier.json");
     }
 }
